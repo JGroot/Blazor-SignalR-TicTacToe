@@ -17,12 +17,15 @@
     .btn:focus {
         outline: none;
     }
-
 </style>
 
 <h1>Tic Tac Toe</h1>
 <hr />
 
+<div class="row p-md-3">
+    <div class="alert alert-success" role="alert">@playerOWins</div>
+    <div class="alert alert-success" role="alert">@playerXWins</div>
+</div>
 <div class="row">
     <button id="btn1" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(0))">@game[0]</button>
     <button id="btn2" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(1))">@game[1]</button>
@@ -54,7 +57,9 @@
     string X = "X";
     bool botgame = true;
     bool botturn = false;
-
+    string playerOWins = string.Empty;
+    string playerXWins = string.Empty;
+    bool gameover = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -75,6 +80,9 @@
     void NewGame()
     {
         turnCount = 0;
+        gameover = false;
+        playerOWins = string.Empty;
+        playerXWins = string.Empty;
         for (var i = 0; i < game.Length; i++)
             game[i] = string.Empty;
     }
@@ -83,6 +91,7 @@
     {
         botgame = true;
         botturn = false;
+        gameover = false;
         NewGame();
     }
 
@@ -95,10 +104,20 @@
 
     void GameClick(int i)
     {
+        if (gameover)
+            return;
+
         if (turnCount.isEven())
         {
 
             game[i] = X;
+
+            if (game.XWins())
+            {
+                playerXWins = "Player X has won the game!";
+                gameover = true;
+                return;
+            }
 
             if (botgame)
             {
@@ -115,6 +134,9 @@
     protected void BotPlay()
     {
         if (!botgame)
+            return;
+
+        if (gameover)
             return;
 
         var rng = new Random();
@@ -147,18 +169,21 @@
             game[8] = O;
         else
         {
-            for (var j = 0; j < game.Length; j++)
-            {
-                if (string.IsNullOrEmpty(game[j]))
-                {
-                    game[j] = O;
-                    break;
-                }
-            }
+
+            var randomEmpty = Array.IndexOf(game, string.Empty, rng.Next(0, 8));
+            game[randomEmpty] = O;
+
         }
 
         turnCount++;
         botturn = false;
+
+        if (game.OWins())
+        {
+            playerOWins = "Player O has won!";
+            gameover = true;
+            return;
+        }
     }
 }
 
