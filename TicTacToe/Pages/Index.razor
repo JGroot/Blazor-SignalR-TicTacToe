@@ -18,8 +18,8 @@
         outline: none;
     }
 
-    .win-message {
-        margin-bottom: 10px;
+    .first-row {
+        padding-top: 100px;
     }
 </style>
 
@@ -39,7 +39,7 @@
     </div>
 
 
-    <div class="row">
+    <div class="row first-row">
         <button id="btn1" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(0))">@game[0]</button>
         <button id="btn2" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(1))">@game[1]</button>
         <button id="btn3" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(2))">@game[2]</button>
@@ -72,6 +72,7 @@
     bool botturn = false;
     string playerOWins = string.Empty;
     string playerXWins = string.Empty;
+    string catGame = string.Empty;
     bool xWon = false;
     bool oWon = false;
     bool gameover = false;
@@ -98,6 +99,7 @@
         gameover = false;
         playerOWins = string.Empty;
         playerXWins = string.Empty;
+        playerOWins = string.Empty;
         oWon = false;
         xWon = false;
         for (var i = 0; i < game.Length; i++)
@@ -124,6 +126,9 @@
         if (gameover)
             return;
 
+        if (!string.IsNullOrEmpty(game[i]))
+            return;
+
         if (turnCount.isEven())
         {
 
@@ -133,6 +138,13 @@
             {
                 playerXWins = "Player X has won the game!";
                 xWon = true;
+                gameover = true;
+                return;
+            }
+
+            if (game.CatGame())
+            {
+                catGame = "Cat game, everyone wins!";
                 gameover = true;
                 return;
             }
@@ -200,6 +212,13 @@
         {
             playerOWins = "Player O has won!";
             oWon = true;
+            gameover = true;
+            return;
+        }
+
+        if (game.CatGame())
+        {
+            catGame = "Cat game, everyone wins!";
             gameover = true;
             return;
         }

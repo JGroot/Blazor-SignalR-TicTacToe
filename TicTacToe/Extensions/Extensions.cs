@@ -1,4 +1,6 @@
-﻿namespace TicTacToe.Extensions
+﻿using System;
+
+namespace TicTacToe.Extensions
 {
     public static class Extensions
     {
@@ -243,6 +245,18 @@
             bool cond8 = array[2].IsX() && array[4].IsX() && array[6].IsX();
 
             if (cond1 || cond2 || cond3 || cond4 || cond5 || cond6 || cond7 || cond8)
+                return true;
+
+            return false;
+        }
+
+        // 0 1 2
+        // 3 4 5
+        // 6 7 8
+        public static bool CatGame(this string[] array)
+        {
+            var firstempty = Array.IndexOf(array, string.Empty);
+            if (firstempty < 0)
                 return true;
 
             return false;
