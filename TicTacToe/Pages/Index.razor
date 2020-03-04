@@ -36,6 +36,10 @@
         {
             <div class="alert alert-success" role="alert">@playerXWins</div>
         }
+        @if (catGame)
+        {
+            <div class="alert alert-success" role="alert">@playerCatGame</div>
+        }
     </div>
 
 
@@ -64,18 +68,19 @@
 
 @code {
 
-    int turnCount = 0;
-    string[] game = new string[9];
-    string O = "O";
-    string X = "X";
-    bool botgame = true;
-    bool botturn = false;
-    string playerOWins = string.Empty;
-    string playerXWins = string.Empty;
-    string catGame = string.Empty;
-    bool xWon = false;
-    bool oWon = false;
-    bool gameover = false;
+    int turnCount;
+    string[] game;
+    string O;
+    string X;
+    bool botgame;
+    bool botturn;
+    string playerOWins;
+    string playerXWins;
+    string playerCatGame;
+    bool xWon;
+    bool oWon;
+    bool catGame;
+    bool gameover;
 
     protected override async Task OnInitializedAsync()
     {
@@ -95,13 +100,20 @@
 
     void NewGame()
     {
+        
         turnCount = 0;
-        gameover = false;
+        game = new string[9];
+        O = "O";
+        X = "X";
+        botgame = true;
+        botturn = false;
         playerOWins = string.Empty;
         playerXWins = string.Empty;
-        playerOWins = string.Empty;
+        playerCatGame = string.Empty;
         oWon = false;
         xWon = false;
+        catGame = false;
+        gameover = false;
         for (var i = 0; i < game.Length; i++)
             game[i] = string.Empty;
     }
@@ -131,32 +143,25 @@
 
         if (turnCount.isEven())
         {
-
             game[i] = X;
-
-            if (game.XWins())
-            {
-                playerXWins = "Player X has won the game!";
-                xWon = true;
-                gameover = true;
+            if (PlayerXWin())
                 return;
-            }
 
-            if (game.CatGame())
-            {
-                catGame = "Cat game, everyone wins!";
-                gameover = true;
+            if (PlayerCatGame())
                 return;
-            }
 
             if (botgame)
-            {
-                botturn = true;
-            }
+                botturn = true;           
         }
         else
         {
             game[i] = O;
+            if (PlayerOWin())
+                return;
+
+            if (PlayerCatGame())
+                return;
+
         }
         turnCount++;
     }
@@ -208,20 +213,47 @@
         turnCount++;
         botturn = false;
 
+        if (PlayerOWin())
+            return;
+
+        if (PlayerCatGame())
+            return;
+    }
+
+    private bool PlayerOWin()
+    {
         if (game.OWins())
         {
             playerOWins = "Player O has won!";
             oWon = true;
             gameover = true;
-            return;
+            return true;
         }
+        return false;
+    }
 
+    private bool PlayerXWin()
+    {
+        if (game.XWins())
+        {
+            playerXWins = "Player X has won the game!";
+            xWon = true;
+            gameover = true;
+            return true;
+        }
+        return false;
+    }
+
+    private bool PlayerCatGame()
+    {
         if (game.CatGame())
         {
-            catGame = "Cat game, everyone wins!";
+            playerCatGame = "Cat game, everyone wins!";
+            catGame = true;
             gameover = true;
-            return;
+            return true;
         }
+        return false;
     }
 }
 

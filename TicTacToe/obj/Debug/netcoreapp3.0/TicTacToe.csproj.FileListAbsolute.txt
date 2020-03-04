@@ -91,7 +91,6 @@ D:\Programming\TicTacToe\TicTacToe\TicTacToe\obj\Debug\netcoreapp3.0\RazorDeclar
 D:\Programming\TicTacToe\TicTacToe\TicTacToe\obj\Debug\netcoreapp3.0\RazorDeclaration\Pages\Error.razor.g.cs
 D:\Programming\TicTacToe\TicTacToe\TicTacToe\obj\Debug\netcoreapp3.0\RazorDeclaration\Pages\FetchData.razor.g.cs
 D:\Programming\TicTacToe\TicTacToe\TicTacToe\obj\Debug\netcoreapp3.0\RazorDeclaration\Pages\Index.razor.g.cs
-D:\Programming\TicTacToe\TicTacToe\TicTacToe\obj\Debug\netcoreapp3.0\RazorDeclaration\Pages\Main.razor.g.cs
 D:\Programming\TicTacToe\TicTacToe\TicTacToe\obj\Debug\netcoreapp3.0\RazorDeclaration\Shared\MainLayout.razor.g.cs
 D:\Programming\TicTacToe\TicTacToe\TicTacToe\obj\Debug\netcoreapp3.0\RazorDeclaration\Shared\NavMenu.razor.g.cs
 D:\Programming\TicTacToe\TicTacToe\TicTacToe\obj\Debug\netcoreapp3.0\RazorDeclaration\_Imports.razor.g.cs
@@ -104,7 +103,6 @@ D:\Programming\TicTacToe\TicTacToe\TicTacToe\obj\Debug\netcoreapp3.0\Razor\Pages
 D:\Programming\TicTacToe\TicTacToe\TicTacToe\obj\Debug\netcoreapp3.0\Razor\Pages\Error.razor.g.cs
 D:\Programming\TicTacToe\TicTacToe\TicTacToe\obj\Debug\netcoreapp3.0\Razor\Pages\FetchData.razor.g.cs
 D:\Programming\TicTacToe\TicTacToe\TicTacToe\obj\Debug\netcoreapp3.0\Razor\Pages\Index.razor.g.cs
-D:\Programming\TicTacToe\TicTacToe\TicTacToe\obj\Debug\netcoreapp3.0\Razor\Pages\Main.razor.g.cs
 D:\Programming\TicTacToe\TicTacToe\TicTacToe\obj\Debug\netcoreapp3.0\Razor\Shared\MainLayout.razor.g.cs
 D:\Programming\TicTacToe\TicTacToe\TicTacToe\obj\Debug\netcoreapp3.0\Razor\Shared\NavMenu.razor.g.cs
 D:\Programming\TicTacToe\TicTacToe\TicTacToe\obj\Debug\netcoreapp3.0\Razor\_Imports.razor.g.cs
