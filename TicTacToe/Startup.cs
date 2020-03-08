@@ -31,6 +31,7 @@ namespace TicTacToe
             services.AddServerSideBlazor();
             services.AddSingleton<WeatherForecastService>();
             services.AddSingleton<GameModelService>();
+            services.AddSingleton<GameHub>();
             services.AddSignalR();
         }
 

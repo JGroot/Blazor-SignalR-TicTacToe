@@ -8,8 +8,6 @@ namespace TicTacToe.States
 {
     public class AppState
     {
-        //private readonly List<Expense> _expenses = new List<Expense>();
-        //public IReadOnlyList<Expense> Expenses => _expenses;
 
         private string[] _game = new string[9];
         public string[] Game => _game;
