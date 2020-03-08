@@ -4,8 +4,11 @@
 @using System.Threading;
 @using Data;
 @using Microsoft.AspNetCore.SignalR.Client;
+@using Hubs;
+
 @inject NavigationManager NavigationManager
 @inject GameModelService GameModelService
+@inject GameHub GameHub
 
 <style>
     .tttbutton {
@@ -47,38 +50,51 @@
 
     <div class="game-board">
         <div class="row first-row">
-            <button id="btn1" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(0))">@gamesettings.Game[0]</button>
-            <button id="btn2" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(1))">@gamesettings.Game[1]</button>
-            <button id="btn3" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(2))">@gamesettings.Game[2]</button>
+            <button id="btn1" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(0))">@_gamesettings.Game[0]</button>
+            <button id="btn2" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(1))">@_gamesettings.Game[1]</button>
+            <button id="btn3" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(2))">@_gamesettings.Game[2]</button>
         </div>
         <div class="row">
-            <button id="btn1" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(3))">@gamesettings.Game[3]</button>
-            <button id="btn2" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(4))">@gamesettings.Game[4]</button>
-            <button id="btn3" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(5))">@gamesettings.Game[5]</button>
+            <button id="btn1" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(3))">@_gamesettings.Game[3]</button>
+            <button id="btn2" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(4))">@_gamesettings.Game[4]</button>
+            <button id="btn3" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(5))">@_gamesettings.Game[5]</button>
         </div>
         <div class="row">
-            <button id="btn1" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(6))">@gamesettings.Game[6]</button>
-            <button id="btn2" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(7))">@gamesettings.Game[7]</button>
-            <button id="btn3" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(8))">@gamesettings.Game[8]</button>
+            <button id="btn1" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(6))">@_gamesettings.Game[6]</button>
+            <button id="btn2" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(7))">@_gamesettings.Game[7]</button>
+            <button id="btn3" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(8))">@_gamesettings.Game[8]</button>
         </div>
     </div>
     <div class="row new-game-buttons">
-        <button id="btn-new-game" class="btn btn-primary m-1" @onclick="NewGame">New Game</button>
-        <button id="btn-new-game" class="btn btn-primary m-1" @onclick="BotSetup">Player vs Bot</button>
-        <button id="btn-new-game" class="btn btn-primary m-1" @onclick="HumanSetup">Player vs Human</button>
+        <button id="btn-new-game" class="btn btn-primary m-1" @onclick="NewBotGameClick">New Player vs Bot Game</button>
+        <button id="btn-new-game" class="btn btn-primary m-1" @onclick="NewHumanGameClick">New Player vs Human Game</button>
     </div>
+    <div class="row">
+        <span>Is Connected = @_hubConnection.State</span>
+    </div>
+    <div class="row">
+    @if (_gamesettings.PlayerXTurn)
+    {
+        <div class="alert alert-light" role="alert">Player X Turn</div>
+    }
+    @if (_gamesettings.PlayerOTurn)
+    {
+        <div class="alert alert-light" role="alert">Player O Turn</div>
+    }
+</div>
+    <div class="alert alert-custom" role="alert">@_gamesettings.PlayerOTurn</div>
     <div class="row win-message">
-        @if (gamesettings.OWon)
+        @if (_gamesettings.OWon)
         {
-            <div class="alert alert-custom" role="alert">@gamesettings.PlayerOWins</div>
+            <div class="alert alert-custom" role="alert">@_gamesettings.PlayerOWins</div>
         }
-        @if (gamesettings.XWon)
+        @if (_gamesettings.XWon)
         {
-            <div class="alert alert-custom" role="alert">@gamesettings.PlayerXWins</div>
+            <div class="alert alert-custom" role="alert">@_gamesettings.PlayerXWins</div>
         }
-        @if (gamesettings.CatGame)
+        @if (_gamesettings.CatGame)
         {
-            <div class="alert alert-custom" role="alert">@gamesettings.PlayerCatGame</div>
+            <div class="alert alert-custom" role="alert">@_gamesettings.PlayerCatGame</div>
         }
     </div>
 </div>
@@ -86,32 +102,52 @@
 @code {
 
     private HubConnection _hubConnection;
-    private GameModel gamesettings;
-    string O = "O";
-    string X = "X";
+    private GameModel _gamesettings;
 
     protected override async Task OnInitializedAsync()
     {
-        gamesettings = await GameModelService.GetGameBoardAsync();
+        //_gamesettings = await GameModelService.GetHumanGameBoardAsync();
         _hubConnection = new HubConnectionBuilder()
             .WithUrl(NavigationManager.ToAbsoluteUri("/gameHub"))
             .Build();
 
-        _hubConnection.On<GameModel>("ReceiveMessage", (_gamesettings) =>
+
+        _hubConnection.On<GameModel>(ClientEndpoints.NewHumanGame, (gamesettings) =>
         {
-            gamesettings = _gamesettings;
-            if (gamesettings.Botturn) { BotPlay(); Send(); }
+            _gamesettings = gamesettings;
             StateHasChanged();
         });
 
+        _hubConnection.On<GameModel>(ClientEndpoints.NewBotGame, (gamesettings) =>
+        {
+            _gamesettings = gamesettings;
+            StateHasChanged();
+        });
+
+        _hubConnection.On<GameModel>(ClientEndpoints.NextTurn, async (gamesettings) =>
+        {
+            _gamesettings = gamesettings;
+            await GameHub.HandleGameOver();
+            if (!gamesettings.Gameover)
+            {
+                if (gamesettings.Botturn) { GameHub.TakeBotTurn(); }
+            }
+            StateHasChanged();
+        });
+
+        _hubConnection.On<GameModel>(ClientEndpoints.GameOver, (gamesettings) =>
+        {
+            gamesettings = _gamesettings;
+            StateHasChanged();
+        });
+
+
         await _hubConnection.StartAsync();
-
-
+        await Send();
     }
 
-
     Task Send() =>
-        _hubConnection.SendAsync("SendMessage", gamesettings);
+        _hubConnection.SendAsync("SendMessage", _gamesettings);
 
     public bool IsConnected =>
         _hubConnection.State == HubConnectionState.Connected;
@@ -121,151 +157,21 @@
     //    if (gamesettings.Botturn)
     //    {
     //        BotPlay();
-    //       // StateHasChanged();          
+    //       // StateHasChanged();
     //    }
     //     Send();
     //}
 
 
-    public async Task NewGame()
+    public async Task NewBotGameClick() => await GameHub.NewBotGame();
+    public async Task NewHumanGameClick() => await GameHub.NewHumanGame();
+
+
+    public async Task GameClick(int i)
     {
-        gamesettings = await GameModelService.GetGameBoardAsync();
+        if (!_gamesettings.Gameover && string.IsNullOrEmpty(_gamesettings.Game[i]))
+            await _hubConnection.SendAsync(ServerEndpoints.PlayerMove, i, _gamesettings);
     }
 
-    public async Task BotSetup()
-    {
-        gamesettings = await GameModelService.GetGameBoardAsync();
-        gamesettings.Botgame = true;
-    }
-
-    public async Task HumanSetup()
-    {
-        gamesettings = await GameModelService.GetGameBoardAsync();
-        gamesettings.Botgame = false;
-    }
-
-    void GameClick(int i)
-    {
-        if (gamesettings.Gameover)
-            return;
-
-        if (!string.IsNullOrEmpty(gamesettings.Game[i]))
-            return;
-
-        if (gamesettings.TurnCount.isEven())
-        {
-            gamesettings.Game[i] = X;
-            if (PlayerXWin())
-                return;
-
-            if (PlayerCatGame())
-                return;
-
-            if (gamesettings.Botgame)
-                gamesettings.Botturn = true;
-        }
-        else
-        {
-            gamesettings.Game[i] = O;
-            if (PlayerOWin())
-                return;
-
-            if (PlayerCatGame())
-                return;
-
-        }
-        gamesettings.TurnCount++;
-        Send();
-    }
-
-    protected void BotPlay()
-    {
-        if (!gamesettings.Botgame)
-            return;
-
-        if (gamesettings.Gameover)
-            return;
-
-        var rng = new Random();
-        Thread.Sleep(rng.Next(100, 3000));
-
-
-        // 0 1 2
-        // 3 4 5
-        // 6 7 8
-        bool shouldSetMiddle = string.IsNullOrEmpty(gamesettings.Game[4]) || gamesettings.Game.ShouldSetMiddle();
-        if (shouldSetMiddle)
-        {
-            gamesettings.Game[4] = O;
-        }
-        else if (gamesettings.Game.ShouldSetUpperLeft())
-            gamesettings.Game[0] = O;
-        else if (gamesettings.Game.ShouldSetUpperMiddle())
-            gamesettings.Game[1] = O;
-        else if (gamesettings.Game.ShouldSetUpperRight())
-            gamesettings.Game[2] = O;
-        else if (gamesettings.Game.ShouldSetLeftMiddle())
-            gamesettings.Game[3] = O;
-        else if (gamesettings.Game.ShouldSetRightMiddle())
-            gamesettings.Game[5] = O;
-        else if (gamesettings.Game.ShouldSetLowerLeft())
-            gamesettings.Game[6] = O;
-        else if (gamesettings.Game.ShouldSetLowerMiddle())
-            gamesettings.Game[7] = O;
-        else if (gamesettings.Game.ShouldSetLowerRight())
-            gamesettings.Game[8] = O;
-        else
-        {
-
-            var randomEmpty = Array.IndexOf(gamesettings.Game, string.Empty, rng.Next(0, 8));
-            gamesettings.Game[randomEmpty] = O;
-
-        }
-
-        gamesettings.TurnCount++;
-        gamesettings.Botturn = false;
-
-        if (PlayerOWin())
-            return;
-
-        if (PlayerCatGame())
-            return;
-    }
-
-    private bool PlayerOWin()
-    {
-        if (gamesettings.Game.OWins())
-        {
-            gamesettings.PlayerOWins = new MarkupString("<strong>Game Over:</strong> Player O has won the game!");
-            gamesettings.OWon = true;
-            gamesettings.Gameover = true;
-            return true;
-        }
-        return false;
-    }
-
-    private bool PlayerXWin()
-    {
-        if (gamesettings.Game.XWins())
-        {
-            gamesettings.PlayerXWins = new MarkupString("<strong>Game Over:</strong> Player X has won the game!");
-            gamesettings.XWon = true;
-            gamesettings.Gameover = true;
-            return true;
-        }
-        return false;
-    }
-
-    private bool PlayerCatGame()
-    {
-        if (gamesettings.Game.CatGame())
-        {
-            gamesettings.PlayerCatGame = new MarkupString("<strong>Game Over:</strong> Cat game! Everyone wins!");
-            gamesettings.CatGame = true;
-            gamesettings.Gameover = true;
-            return true;
-        }
-        return false;
-    }
 }
 
