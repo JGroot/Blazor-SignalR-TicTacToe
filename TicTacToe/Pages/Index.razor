@@ -47,31 +47,6 @@
 <hr />
 
 <div class="container">
-
-    <div class="game-board">
-        <div class="row first-row">
-            <button id="btn1" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(0))">@_gamesettings.Game[0]</button>
-            <button id="btn2" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(1))">@_gamesettings.Game[1]</button>
-            <button id="btn3" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(2))">@_gamesettings.Game[2]</button>
-        </div>
-        <div class="row">
-            <button id="btn1" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(3))">@_gamesettings.Game[3]</button>
-            <button id="btn2" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(4))">@_gamesettings.Game[4]</button>
-            <button id="btn3" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(5))">@_gamesettings.Game[5]</button>
-        </div>
-        <div class="row">
-            <button id="btn1" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(6))">@_gamesettings.Game[6]</button>
-            <button id="btn2" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(7))">@_gamesettings.Game[7]</button>
-            <button id="btn3" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(8))">@_gamesettings.Game[8]</button>
-        </div>
-    </div>
-    <div class="row new-game-buttons">
-        <button id="btn-new-game" class="btn btn-primary m-1" @onclick="NewBotGameClick">New Player vs Bot Game</button>
-        <button id="btn-new-game" class="btn btn-primary m-1" @onclick="NewHumanGameClick">New Player vs Human Game</button>
-    </div>
-    <div class="row">
-        <span>Is Connected = @_hubConnection.State</span>
-    </div>
     <div class="row">
         @if (_gamesettings.PlayerXTurn)
         {
@@ -96,6 +71,30 @@
             <div class="alert alert-custom" role="alert"><strong>Game Over:</strong> Cat game! Everyone wins!</div>
         }
     </div>
+    <div class="game-board">
+        <div class="row first-row">
+            <button id="btn1" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(0))">@_gamesettings.Game[0]</button>
+            <button id="btn2" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(1))">@_gamesettings.Game[1]</button>
+            <button id="btn3" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(2))">@_gamesettings.Game[2]</button>
+        </div>
+        <div class="row">
+            <button id="btn1" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(3))">@_gamesettings.Game[3]</button>
+            <button id="btn2" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(4))">@_gamesettings.Game[4]</button>
+            <button id="btn3" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(5))">@_gamesettings.Game[5]</button>
+        </div>
+        <div class="row">
+            <button id="btn1" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(6))">@_gamesettings.Game[6]</button>
+            <button id="btn2" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(7))">@_gamesettings.Game[7]</button>
+            <button id="btn3" class="btn btn-outline-info tttbutton tttfont" @onclick="(() => GameClick(8))">@_gamesettings.Game[8]</button>
+        </div>
+    </div>
+    <div class="row new-game-buttons">
+        <button id="btn-new-game" class="btn btn-primary m-1" @onclick="NewBotGameClick">New Player vs Bot Game</button>
+        <button id="btn-new-game" class="btn btn-primary m-1" @onclick="NewHumanGameClick">New Player vs Human Game</button>
+    </div>
+    <div class="row">
+        <span>Connection State = @_hubConnection.State</span>
+    </div>
 </div>
 
 @code {
@@ -117,16 +116,17 @@
             StateHasChanged();
         });
 
-        _hubConnection.On<GameModel>(ClientEndpoints.EndTurn, async (gamesettings) =>
+        _hubConnection.On<GameModel>(ClientEndpoints.EndTurn, (gamesettings) =>
         {
             if (!gamesettings.Gameover)
             {
                 _gamesettings = gamesettings;
+                StateHasChanged();
                 if (_gamesettings.Botturn)
                 {
-                    await DoBotTurn();
+                    DoBotTurn();
+                    //StateHasChanged();
                 }
-                StateHasChanged();
             }
         });
 
