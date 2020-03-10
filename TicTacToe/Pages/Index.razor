@@ -9,6 +9,7 @@
 @inject NavigationManager NavigationManager
 @inject GameModelService GameModelService
 @inject GameHub GameHub
+@inject IJSRuntime JSRuntime
 
 <style>
     .tttbutton {
@@ -102,7 +103,6 @@
     private HubConnection _hubConnection;
     private GameModel _gamesettings;
 
-
     protected override async Task OnInitializedAsync()
     {
         _gamesettings = await GameModelService.GetHumanGameBoardAsync();
@@ -116,16 +116,28 @@
             StateHasChanged();
         });
 
-        _hubConnection.On<GameModel>(ClientEndpoints.EndTurn, (gamesettings) =>
+        _hubConnection.On<GameModel>(ClientEndpoints.EndTurn, async (gamesettings) =>
         {
+            if (gamesettings.Botturn)
+            {
+                await this.Write($"Turn {gamesettings.TurnCount} - Human Turn Over");
+            }
+            else
+            {
+                await this.Write($"Turn {gamesettings.TurnCount} - Bot Turn Over.");
+
+            }
+
+            await this.Write(Newtonsoft.Json.JsonConvert.SerializeObject(gamesettings.Game, Newtonsoft.Json.Formatting.None));
+
             if (!gamesettings.Gameover)
             {
                 _gamesettings = gamesettings;
                 StateHasChanged();
                 if (_gamesettings.Botturn)
                 {
-                    DoBotTurn();
-                    //StateHasChanged();
+
+                    await DoBotTurn();
                 }
             }
         });
@@ -136,20 +148,28 @@
             StateHasChanged();
         });
 
-        _hubConnection.On<GameModel>(ClientEndpoints.NewBotGame, (gamesettings) =>
+        _hubConnection.On<GameModel>(ClientEndpoints.NewBotGame, async (gamesettings) =>
         {
+            await this.Write($"Starting New Bot Game");
             _gamesettings = gamesettings;
             StateHasChanged();
         });
 
-        _hubConnection.On<GameModel>(ClientEndpoints.GameOver, (gamesettings) =>
+        _hubConnection.On<GameModel>(ClientEndpoints.GameOver, async (gamesettings) =>
         {
+            await this.Write($"Turn {gamesettings.TurnCount} - Game Over.");
+            await this.Write(Newtonsoft.Json.JsonConvert.SerializeObject(gamesettings.Game, Newtonsoft.Json.Formatting.None));
             _gamesettings = gamesettings;
             StateHasChanged();
         });
 
 
         await _hubConnection.StartAsync();
+    }
+
+    private async Task Write(string message)
+    {
+        await this.JSRuntime.InvokeVoidAsync("console.log", message);
     }
 
     Task Send() => _hubConnection.SendAsync("SendMessage", _gamesettings);
@@ -159,7 +179,7 @@
     Task NewHumanGameClick() => _hubConnection.SendAsync(ServerEndpoints.NewHumanGame, _gamesettings);
     Task TakePlayerTurn(int i) => _hubConnection.SendAsync(ServerEndpoints.TakePlayerTurn, i, _gamesettings);
 
-    //protected override async Task OnAfterRenderAsync(bool firstRender)
+        //protected override async Task OnAfterRenderAsync(bool firstRender)
     //{
     //    if (_gamesettings.Botgame && _gamesettings.Botturn)
     //    {
