@@ -96,12 +96,22 @@
     <div class="row">
         <span>Connection State = @_hubConnection.State</span>
     </div>
+    <div class="row" style="font-family: monospace;">
+        <ul>
+            @foreach (var message in messages)
+            {
+                <li>@message</li>
+            }
+        </ul>
+    </div>
 </div>
 
 @code {
 
     private HubConnection _hubConnection;
     private GameModel _gamesettings;
+
+    protected List<string> messages = new List<string>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -150,6 +160,7 @@
 
         _hubConnection.On<GameModel>(ClientEndpoints.NewBotGame, async (gamesettings) =>
         {
+            this.messages.Clear();
             await this.Write($"Starting New Bot Game");
             _gamesettings = gamesettings;
             StateHasChanged();
@@ -169,6 +180,7 @@
 
     private async Task Write(string message)
     {
+        this.messages.Add(message);
         await this.JSRuntime.InvokeVoidAsync("console.log", message);
     }
 
