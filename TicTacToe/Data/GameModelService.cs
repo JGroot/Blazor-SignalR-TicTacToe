@@ -1,28 +1,10 @@
 ﻿using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.SignalR.Client;
 using System.Threading.Tasks;
 
 namespace TicTacToe.Data
 {
     public class GameModelService
     {
-        //private HubConnection _hubConnection;
-        //private static GameModel _gamesettings = new GameModel();
-
-        //public GameModelService()
-        //{
-        //    _hubConnection.On<GameModel>("ReceiveMessage", (gamesettings) =>
-        //    {
-        //        _gamesettings = gamesettings;
-        //        if (gamesettings.Botturn) { BotPlay(); Send(); }
-        //    });
-
-        //    _hubConnection.On<GameModel>(ClientEndpoints.NewHumanGame, (gamesettings) =>
-        //    {
-        //        _gamesettings = gamesettings;
-        //    });
-
-        //}
         public Task<GameModel> GetHumanGameBoardAsync()
         {
             var dto = new GameModel()

@@ -15,19 +15,6 @@ namespace TicTacToe.Hubs
         const string O = "O";
         const string X = "X";
 
-        public GameHub()
-        {
-
-        }
-
-        //public async Task PlayerTurn(int location)
-        //{
-        //    if (gamesettings.IsValidLocation(location))
-        //        gamesettings.ApplyXorO(location);
-
-        //    await Clients.All.SendAsync("ReceiveMessage", gamesettings);
-        //}
-
         public async Task NewHumanGame(GameModel gamesettings)
         {
             gamesettings = await _service.GetHumanGameBoardAsync();
@@ -139,8 +126,7 @@ namespace TicTacToe.Hubs
                 gamesettings.PlayerOTurn = false;
                 gamesettings.Botturn = false;
                 await Clients.All.SendAsync("GameOver", gamesettings);
-            }
-               
+            }              
         }
     }
 }

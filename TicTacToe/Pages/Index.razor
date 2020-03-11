@@ -96,14 +96,15 @@
     <div class="row">
         <span>Connection State = @_hubConnection.State</span>
     </div>
-    <div class="row" style="font-family: monospace;">
+    @*logging for debugging*@
+    @*<div class="row" style="font-family: monospace;">
         <ul>
             @foreach (var message in messages)
             {
                 <li>@message</li>
             }
         </ul>
-    </div>
+    </div>*@
 </div>
 
 @code {
@@ -120,7 +121,7 @@
             .WithUrl(NavigationManager.ToAbsoluteUri("/gameHub"))
             .Build();
 
-        _hubConnection.On<GameModel>("ReceiveMessage", (gamesettings) =>
+        _hubConnection.On<GameModel>(ClientEndpoints.ReceiveMessage, (gamesettings) =>
         {
             _gamesettings = gamesettings;
             StateHasChanged();
@@ -184,24 +185,12 @@
         await this.JSRuntime.InvokeVoidAsync("console.log", message);
     }
 
-    Task Send() => _hubConnection.SendAsync("SendMessage", _gamesettings);
-    Task DoBotTurn() => _hubConnection.SendAsync(ServerEndpoints.TakeBotTurn, _gamesettings);
     public bool IsConnected => _hubConnection.State == HubConnectionState.Connected;
+    Task Send() => _hubConnection.SendAsync(ServerEndpoints.SendMessage, _gamesettings);
+    Task DoBotTurn() => _hubConnection.SendAsync(ServerEndpoints.TakeBotTurn, _gamesettings);
     Task NewBotGameClick() => _hubConnection.SendAsync(ServerEndpoints.NewBotGame, _gamesettings);
     Task NewHumanGameClick() => _hubConnection.SendAsync(ServerEndpoints.NewHumanGame, _gamesettings);
     Task TakePlayerTurn(int i) => _hubConnection.SendAsync(ServerEndpoints.TakePlayerTurn, i, _gamesettings);
-
-        //protected override async Task OnAfterRenderAsync(bool firstRender)
-    //{
-    //    if (_gamesettings.Botgame && _gamesettings.Botturn)
-    //    {
-    //        await GameHub.TakeBotTurn();
-    //    }
-
-    //}
-
-
-
 
 
     public async Task GameClick(int i)
