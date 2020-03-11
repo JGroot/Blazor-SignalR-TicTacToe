@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace TicTacToe.Data
+﻿namespace TicTacToe.Data
 {
     public static class HubMessages
     {
@@ -25,5 +20,6 @@ namespace TicTacToe.Data
         public const string TakeBotTurn = "TakeBotTurn";
         public const string NewBotGame = "NewBotGame";
         public const string NewHumanGame = "NewHumanGame";
+        public const string SendMessage = "SendMessage";
     }
 }

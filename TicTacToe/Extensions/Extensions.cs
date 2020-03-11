@@ -70,6 +70,9 @@ namespace TicTacToe.Extensions
             return false;
         }
 
+        // 0 1 2
+        // 3 4 5
+        // 6 7 8
         public static bool ShouldSetUpperRight(this string[] array)
         {
             if (!string.IsNullOrEmpty(array[2]) || array[2].IsX())
